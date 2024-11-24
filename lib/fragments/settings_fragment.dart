@@ -54,7 +54,7 @@ class _SettingsFragmentState extends State<SettingsFragment> {
         backgroundColor: const Color(0xFF121212), // Match background color
         elevation: 0, // Remove shadow
       ),
-      body: Padding(
+      body: SingleChildScrollView( // Wrap with SingleChildScrollView to allow scrolling
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

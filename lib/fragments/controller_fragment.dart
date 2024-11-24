@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 class ControllerFragment extends StatefulWidget {
+  const ControllerFragment({Key? key}) : super(key: key);
   @override
   _ControllerFragmentState createState() => _ControllerFragmentState();
 }
@@ -228,7 +229,7 @@ class _ControllerFragmentState extends State<ControllerFragment>
                 icon: const Icon(Icons.play_arrow, color: Colors.cyan),
                 onPressed:
                     _connectionStatus.contains('Connected') ? _startGame : null,
-                tooltip: 'Start Game',
+                tooltip: 'Start',
               ),
             ),
           ],
@@ -246,7 +247,7 @@ class _ControllerFragmentState extends State<ControllerFragment>
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 48.0),
+                padding: const EdgeInsets.only(top: 12.0),
                 child: Center(child: _buildHPBar()),
               ),
               Expanded(
