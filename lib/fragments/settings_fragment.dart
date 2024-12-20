@@ -2,9 +2,10 @@ import 'package:controller_rc/mqtt_service.dart';
 import 'package:flutter/material.dart';
 
 class SettingsFragment extends StatefulWidget {
-  const SettingsFragment({Key? key}) : super(key: key);
+  const SettingsFragment({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _SettingsFragmentState createState() => _SettingsFragmentState();
 }
 
@@ -51,7 +52,7 @@ class _SettingsFragmentState extends State<SettingsFragment> {
           'MQTT Settings',
           style: TextStyle(color: Colors.white), // AppBar text color
         ),
-        backgroundColor: const Color(0xFF121212), // Match background color
+        backgroundColor: const Color(0xFF000000), // Match background color
         elevation: 0, // Remove shadow
       ),
       body: SingleChildScrollView( // Wrap with SingleChildScrollView to allow scrolling

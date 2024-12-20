@@ -3,9 +3,10 @@ import 'fragments/controller_fragment.dart';
 import 'fragments/settings_fragment.dart';
 
 class ControllerPage extends StatefulWidget {
-  const ControllerPage({Key? key}) : super(key: key);
+  const ControllerPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ControllerPageState createState() => _ControllerPageState();
 }
 

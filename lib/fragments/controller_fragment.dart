@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 class ControllerFragment extends StatefulWidget {
-  const ControllerFragment({Key? key}) : super(key: key);
+  const ControllerFragment({super.key});
   @override
+  // ignore: library_private_types_in_public_api
   _ControllerFragmentState createState() => _ControllerFragmentState();
 }
 
@@ -20,6 +21,7 @@ class _ControllerFragmentState extends State<ControllerFragment>
   String _connectionStatus = 'Disconnected';
   int _hpValue = 100;
   bool _isGameActive = false;
+  bool _isHit = false;
 
   void _startContinuousMessage(String message, String topic) {
     _mqttService.publishMessage(topic, message);
@@ -59,7 +61,17 @@ class _ControllerFragmentState extends State<ControllerFragment>
     _messageSubscription = _mqttService.messageStream.listen((message) {
       if (_isGameActive && _hpValue > 0) {
         setState(() {
-          _hpValue = (_hpValue - 1).clamp(0, 100);
+          _hpValue = (_hpValue - 5).clamp(0, 100);
+          _isHit = true;
+        });
+
+        // Reset hit state after a short delay
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            setState(() {
+              _isHit = false;
+            });
+          }
         });
       }
     });
@@ -97,16 +109,18 @@ class _ControllerFragmentState extends State<ControllerFragment>
 
   Widget _buildHPBar() {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.8, // 80% dari lebar layar
-      height: 30, // Ditingkatkan tingginya
+      width: MediaQuery.of(context).size.width * 0.8,
+      height: 30,
       margin: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.cyan, width: 3), // Border lebih tebal
-        borderRadius: BorderRadius.circular(15), // Border radius lebih besar
+        border: Border.all(
+          color: _isHit ? Colors.red : Colors.cyan, 
+          width: 3
+        ),
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
-          // Menambahkan shadow untuk efek menonjol
           BoxShadow(
-            color: Colors.cyan.withOpacity(0.3),
+            color: (_isHit ? Colors.red : Colors.cyan).withOpacity(0.3),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -119,16 +133,15 @@ class _ControllerFragmentState extends State<ControllerFragment>
             child: LinearProgressIndicator(
               value: _hpValue / 100,
               backgroundColor: Colors.black,
-              valueColor: AlwaysStoppedAnimation<Color>(_hpValue > 70
+              valueColor: AlwaysStoppedAnimation<Color>(_hpValue > 50
                   ? Colors.green
-                  : _hpValue > 30
+                  : _hpValue > 25
                       ? Colors.yellow
                       : Colors.red),
-              minHeight: 30, // Menyesuaikan dengan height container
+              minHeight: 30,
             ),
           ),
-          // Menambahkan text HP value
-          Center(),
+          const Center(),
         ],
       ),
     );
@@ -207,12 +220,12 @@ class _ControllerFragmentState extends State<ControllerFragment>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.black,
                 shape: BoxShape.circle,
               ),
               child: IconButton(
-                icon: const Icon(Icons.refresh, color: Colors.cyan),
+                icon: const Icon(Icons.wifi, color: Colors.cyan),
                 onPressed: _connectionStatus != 'Connecting...'
                     ? _connectToMqttBroker
                     : null,
@@ -221,14 +234,16 @@ class _ControllerFragmentState extends State<ControllerFragment>
             ),
             const SizedBox(width: 16),
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.black,
                 shape: BoxShape.circle,
               ),
               child: IconButton(
                 icon: const Icon(Icons.play_arrow, color: Colors.cyan),
-                onPressed:
-                    _connectionStatus.contains('Connected') ? _startGame : null,
+                onPressed: _connectionStatus.contains('Connected') && 
+                    (!_isGameActive || _hpValue <= 0) 
+                    ? _startGame 
+                    : null,
                 tooltip: 'Start',
               ),
             ),
@@ -264,26 +279,7 @@ class _ControllerFragmentState extends State<ControllerFragment>
                             color: Colors.black,
                             topic: 'controller/move/forward',
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildControlButton(
-                                icon: Icons.arrow_back,
-                                tooltip: 'Left',
-                                message: '1',
-                                color: Colors.black,
-                                topic: 'controller/move/left',
-                              ),
-                              const SizedBox(width: 50),
-                              _buildControlButton(
-                                icon: Icons.arrow_forward,
-                                tooltip: 'Right',
-                                message: '1',
-                                color: Colors.black,
-                                topic: 'controller/move/right',
-                              ),
-                            ],
-                          ),
+                          const SizedBox(height: 50), // Added spacing between buttons
                           _buildControlButton(
                             icon: Icons.arrow_downward,
                             tooltip: 'Backward',
@@ -303,7 +299,7 @@ class _ControllerFragmentState extends State<ControllerFragment>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _buildControlButton(
-                            icon: Icons.flash_on,
+                            icon: Icons.rocket_launch_outlined,
                             tooltip: 'Fire',
                             message: '1',
                             color: Colors.black,
@@ -314,7 +310,7 @@ class _ControllerFragmentState extends State<ControllerFragment>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               _buildControlButton(
-                                icon: Icons.rotate_left,
+                                icon: Icons.arrow_back,
                                 tooltip: 'Turn Left',
                                 message: '1',
                                 color: Colors.black,
@@ -322,7 +318,7 @@ class _ControllerFragmentState extends State<ControllerFragment>
                               ),
                               const SizedBox(width: 50),
                               _buildControlButton(
-                                icon: Icons.rotate_right,
+                                icon: Icons.arrow_forward,
                                 tooltip: 'Turn Right',
                                 message: '1',
                                 color: Colors.black,
